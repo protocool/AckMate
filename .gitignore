@@ -1,0 +1,11 @@
+.DS_Store
+build
+*~.nib
+*.tm_build_errors
+*.pbxuser
+*.perspective
+*.perspectivev3
+scratch
+appcast
+*.TM_Completions.txt.gz
+*.mode1v3
