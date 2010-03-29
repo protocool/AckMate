@@ -44,11 +44,11 @@ enum {
   return self;
 }
 
-- (void)invokeWithTerm:(NSString*)term path:(NSString*)path literal:(BOOL)literal nocase:(BOOL)nocase words:(BOOL)words context:(BOOL)context symlinks:(BOOL)symlinks folderPattern:(NSString*)folderPattern options:(NSArray*)options
+- (void)invokeWithTerm:(NSString*)term path:(NSString*)path searchFolder:(NSString*)searchFolder literal:(BOOL)literal nocase:(BOOL)nocase words:(BOOL)words context:(BOOL)context symlinks:(BOOL)symlinks folderPattern:(NSString*)folderPattern options:(NSArray*)options
 {
   ackState = ackInitial;
   [self.ackResult clearContents];
-  [self.ackResult setSearchRoot:path];
+  [self.ackResult searchingFor:term inRoot:path inFolder:searchFolder];
 
   self.ackTask = [[[NSTask alloc] init] autorelease];
 
@@ -84,7 +84,7 @@ enum {
 
   [args addObject:@"--match"];
   [args addObject:term];
-  [args addObject:path];
+  [args addObject:(searchFolder) ? searchFolder : path];
 
   [self.ackTask setArguments:args];
 

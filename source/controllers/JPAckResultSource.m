@@ -64,7 +64,16 @@ NSString* const amContentColumn  = @"amContentColumn";
 - (void)updateStats
 {
   // 5 lines matched in 2 files
-  self.resultStats = [NSString stringWithFormat:@"%d line%@ matched in %d file%@", matchedLines, (matchedLines == 1) ? @"" : @"s", matchedFiles, (matchedFiles == 1) ? @"" : @"s"];
+  NSString* insel = (searchingSelection) ? @"In selection: " : @"";
+  
+  self.resultStats = [NSString stringWithFormat:@"%@%d line%@ matched in %d file%@", insel, matchedLines, (matchedLines == 1) ? @"" : @"s", matchedFiles, (matchedFiles == 1) ? @"" : @"s"];
+}
+
+- (void)searchingFor:(NSString*)term inRoot:(NSString*)searchRoot_ inFolder:(NSString*)searchFolder
+{
+  self.searchRoot = searchRoot_;
+  searchingSelection = (searchFolder) ? YES : NO;
+  [self updateStats];
 }
 
 - (void)parsedError:(NSString*)errorString

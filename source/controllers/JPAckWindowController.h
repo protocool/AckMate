@@ -24,6 +24,8 @@ extern NSString * const kJPAckWindowPosition;
 
   NSInteger pasteboardChangeCount;
   NSString* projectDirectory;
+  NSString* selectedSearchFolder;
+  BOOL      selectionSearch;
   NSString* fileName;
 
   NSMutableDictionary* preferences;

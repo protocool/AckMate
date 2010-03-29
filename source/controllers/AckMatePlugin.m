@@ -85,7 +85,7 @@
   id windowController = [[notification object] windowController];
   if ([[windowController className] isEqualToString:@"OakProjectController"])
   {
-    NSString* closingProjectDir = [windowController projectDirectory];
+    NSString* closingProjectDir = [self directoryForProject:windowController];
     JPAckWindowController* existingAckController = [ackWindows objectForKey:closingProjectDir];
     if (existingAckController)
       [existingAckController cleanup];

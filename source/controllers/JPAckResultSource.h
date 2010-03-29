@@ -22,6 +22,7 @@
   JPAckResult* currentResultFile;
 
   NSString* resultStats;
+  BOOL searchingSelection;
   NSString* searchRoot;
   BOOL alternateRow;
   
@@ -38,6 +39,7 @@
 
 - (void)clearContents;
 - (void)updateStats;
+- (void)searchingFor:(NSString*)term inRoot:(NSString*)searchRoot inFolder:(NSString*)searchFolder;
 - (void)parsedError:(NSString*)errorString;
 - (void)parsedFilename:(NSString*)filename;
 - (void)parsedContextLine:(NSString*)lineNumber content:(NSString*)content;

@@ -11,10 +11,13 @@
 - (void)notePreferences;
 - (void)updateHistoryWithTerm:(NSString*)term;
 - (NSArray*)cleanseOptionList:(NSArray*)optionList;
+- (NSString*)projectSelectedSearchFolder;
+- (void)updateSearchSelectionForEvent:(NSEvent*)event;
 @property(nonatomic, retain) JPAckProcess* currentProcess;
 @property(nonatomic, retain) JPAckTypesProcess* currentTypesProcess;
 @property(nonatomic, retain) NSArray* ackTypes;
 @property(nonatomic, readwrite, copy) NSArray* history;
+@property(nonatomic, copy) NSString* selectedSearchFolder;
 @end
 
 @implementation JPAckWindowController
@@ -31,6 +34,7 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
 
 @synthesize fileName;
 @synthesize projectDirectory;
+@synthesize selectedSearchFolder;
 @synthesize ackTypes;
 @synthesize history;
 @synthesize term;
@@ -51,6 +55,16 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
 + (NSSet*)keyPathsForValuesAffectingWindowTitle
 {
   return [NSSet setWithObject:@"fileName"];
+}
+
++ (NSSet*)keyPathsForValuesAffectingSearchTitle
+{
+  return [NSSet setWithObject:@"selectedSearchFolder"];
+}
+
++ (NSSet*)keyPathsForValuesAffectingCanSearch
+{
+  return [NSSet setWithObjects:@"selectedSearchFolder", @"running", @"term", nil];
 }
 
 - (id)initWithProjectDirectory:(NSString*)directory controller:(id)controller preferences:(NSMutableDictionary*)prefs
@@ -184,6 +198,7 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
   NSString* path = self.projectDirectory;
   [self.currentProcess invokeWithTerm:term
       path:path
+      searchFolder:selectedSearchFolder
       literal:literal
       nocase:nocase
       words:words
@@ -191,6 +206,58 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
       symlinks:symlinks
       folderPattern:folderPattern
       options:[optionsField objectValue]];
+}
+
+- (void)flagsChanged:(NSEvent*)event
+{
+  [self updateSearchSelectionForEvent:event];
+}
+
+- (NSString*)projectSelectedSearchFolder
+{
+  NSString* tmSelectedFile = [[projectController environmentVariables] objectForKey:@"TM_SELECTED_FILE"];
+
+  if (!tmSelectedFile) return nil;
+
+  BOOL isdir = NO;
+
+  if ([[NSFileManager defaultManager] fileExistsAtPath:tmSelectedFile isDirectory:&isdir] && isdir)
+    return tmSelectedFile;
+  
+  return nil;
+}
+
+- (void)windowDidResignMain:(NSNotification*)notification
+{
+  selectionSearch = NO;
+  self.selectedSearchFolder = nil;
+}
+
+- (void)windowDidBecomeMain:(NSNotification*)notification
+{
+  [self updateSearchSelectionForEvent:[NSApp currentEvent]];
+}
+
+- (void)updateSearchSelectionForEvent:(NSEvent*)event
+{
+  selectionSearch = ([event modifierFlags] & NSCommandKeyMask) ? YES : NO;
+  if (selectionSearch)
+    self.selectedSearchFolder = [self projectSelectedSearchFolder];
+  else
+    self.selectedSearchFolder = nil;
+}
+
+- (NSString*)searchTitle
+{
+  return (selectionSearch) ? @"In Selection" : @"Search";
+}
+
+- (BOOL)canSearch
+{
+  if ([self running] || ![self term] || (selectionSearch && !self.selectedSearchFolder)) 
+    return NO;
+
+  return YES;
 }
 
 - (void)loadAckTypes
@@ -335,6 +402,7 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
 {
   [fileName release], fileName = nil;
   [projectDirectory release], projectDirectory = nil;
+  [selectedSearchFolder release], selectedSearchFolder = nil;
   [term release], term = nil;
   [ackTypes release], ackTypes = nil;
   [history release], history = nil;
