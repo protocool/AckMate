@@ -8,7 +8,7 @@
 
 @interface JPAckResultTableView ()
 - (void)activationAction:(id)sender;
-- (BOOL)activateRow:(NSInteger)row;
+- (BOOL)activateRow:(NSInteger)row atPoint:(NSPoint)point;
 @end
 
 @implementation JPAckResultTableView
@@ -22,15 +22,17 @@
 - (void)activationAction:(id)sender
 {
   NSInteger crow = [self clickedRow];
-  if (crow != -1 && [self isRowSelected:crow])
-    [self activateRow:crow];
+  NSPoint mouseLocation = [self convertPoint:[[self window] convertScreenToBase:[NSEvent mouseLocation]] fromView:nil];
+
+  if (crow != -1 && [self isRowSelected:crow] && NSPointInRect(mouseLocation, [self rectOfRow:crow]))
+    [self activateRow:crow atPoint:mouseLocation];
 }
 
-- (BOOL)activateRow:(NSInteger)row
+- (BOOL)activateRow:(NSInteger)row atPoint:(NSPoint)point;
 {
   if ([self isRowSelected:row])
   {
-    return [[self delegate] tableView:self activateSelectedRow:row];
+    return [[self delegate] tableView:self activateSelectedRow:row atPoint:point];
   }
   return NO;
 }

@@ -57,7 +57,7 @@ extern NSString * const kJPAckWindowPosition;
 - (id)initWithProjectDirectory:(NSString*)directory controller:(id)controller preferences:(NSMutableDictionary*)prefs;
 - (void)showAndActivate;
 - (IBAction)cleanseOptionsField:(id)sender;
-- (void)openProjectFile:(NSString*)file atLine:(NSString*)line;
+- (void)openProjectFile:(NSString*)file atLine:(NSString*)line selectionRange:(NSRange)selectionRange;
 - (IBAction)performSearch:(id)sender;
 - (IBAction)cancel:(id)sender;
 - (BOOL)running;
@@ -68,6 +68,8 @@ extern NSString * const kJPAckWindowPosition;
 @interface NSObject (AckMateCompilerSilencing)
 - (void)openFiles:(id)farray;
 - (void)goToLineNumber:(id)line;
+- (void)goToColumnNumber:(id)col;
+- (void)selectToLine:(id)line andColumn:(id)col;
 - (id)environmentVariables;
 - (id)document;
 @end

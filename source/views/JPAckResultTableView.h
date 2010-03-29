@@ -12,6 +12,6 @@
 @end
 
 @interface NSObject (JPAckResultTableViewDelegate)
-- (BOOL)tableView:(NSTableView *)tableView activateSelectedRow:(NSInteger)row;
+- (BOOL)tableView:(NSTableView *)tableView activateSelectedRow:(NSInteger)row atPoint:(NSPoint)point;
 - (NSInteger)tableView:(NSTableView *)tableView spanningColumnForRow:(NSInteger)row;
 @end

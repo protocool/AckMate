@@ -17,9 +17,10 @@
 
 // some interior space so that text isn't mashed up 
 // against left/right edges
-#define RESULT_CONTENT_INTERIOR_PADDING 5.0
+#define RESULT_CONTENT_INTERIOR_PADDING 10.0
 
 @interface JPAckResultCell : NSTextFieldCell {
+  BOOL expectsFullCellDrawingRect;
   JPAckResultType resultType;
   BOOL alternate;
   BOOL contentColumn;
@@ -27,5 +28,4 @@
 }
 
 -(void)configureType:(JPAckResultType)resultType_ alternate:(BOOL)alternate_ contentColumn:(BOOL)contentColumn_;
-
 @end

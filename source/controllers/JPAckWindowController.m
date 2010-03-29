@@ -271,7 +271,7 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
   [self.currentTypesProcess invokeWithPath:path options:[optionsField objectValue]];
 }
 
-- (void)openProjectFile:(NSString*)file atLine:(NSString*)line
+- (void)openProjectFile:(NSString*)file atLine:(NSString*)line selectionRange:(NSRange)selectionRange
 {
   NSString* absolute = [projectDirectory stringByAppendingPathComponent:file];
   [[[NSApplication sharedApplication] delegate] openFiles:[NSArray arrayWithObject:absolute]];
@@ -287,6 +287,11 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
     if ([openFileName isEqualToString:absolute])
     {
       [[wc textView] goToLineNumber:line];
+      [[wc textView] goToColumnNumber:[NSNumber numberWithInt:selectionRange.location + 1]];
+
+      if (selectionRange.length > 0)
+        [[wc textView] selectToLine:line andColumn:[NSNumber numberWithInt:selectionRange.location + selectionRange.length + 1]];
+
       break;
     }
   }

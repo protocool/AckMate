@@ -190,7 +190,7 @@ NSString* const amContentColumn  = @"amContentColumn";
   return NO;
 }
 
-- (BOOL)tableView:(NSTableView *)tableView activateSelectedRow:(NSInteger)row
+- (BOOL)tableView:(NSTableView *)tableView activateSelectedRow:(NSInteger)row atPoint:(NSPoint)point
 {
   JPAckResultRep* rep = [self.resultLines objectAtIndex:row];
   JPAckResult* resultObject = [rep resultObject];
@@ -198,7 +198,51 @@ NSString* const amContentColumn  = @"amContentColumn";
   if (resultObject.resultType == JPResultTypeContext || resultObject.resultType == JPResultTypeMatchingLine)
   {
     NSString* filenameToOpen = [[rep parentObject] lineContent];
-    [windowController openProjectFile:filenameToOpen atLine:[resultObject lineNumber]];
+    NSRange selectionRange = NSMakeRange(0,0);
+    
+    // I feel like such a bandit... oh well.
+    if (NSPointInRect(point, [tableView frameOfCellAtColumn:1 row:row]) && [resultObject matchRanges])
+    {
+      // Quickly load up the field editor so we can find out where the click was
+      [tableView editColumn:1 row:row withEvent:nil select:NO];
+      NSTextView* tv = (NSTextView*)[tableView currentEditor];
+      NSPoint adjustedPoint = [tv convertPoint:point fromView:tableView];
+      NSUInteger clickIndex = [tv characterIndexForInsertionAtPoint:adjustedPoint];
+      
+      NSRange closestRange = NSMakeRange(NSNotFound, 0);
+      
+      // get rid of the field editor right away
+      if (![[tableView window] makeFirstResponder:tableView])
+        [[tableView window] endEditingFor:nil];
+
+      NSRange lastRange = NSMakeRange(NSNotFound, 0);
+      for (NSValue* rv in [resultObject matchRanges])
+      {
+        NSRange matchRange = [rv rangeValue];
+        if (NSLocationInRange(clickIndex, matchRange))
+        {
+          closestRange = matchRange;
+          break;
+        }
+        else if (clickIndex < matchRange.location)
+        {
+          if (lastRange.location != NSNotFound && (clickIndex - (lastRange.location + lastRange.length)) < (matchRange.location - clickIndex))
+            closestRange = lastRange;
+          else
+            closestRange = matchRange;
+            
+          break;
+        }
+        lastRange = matchRange;
+      }
+      
+      if (closestRange.location == NSNotFound)
+        closestRange = [[[resultObject matchRanges] lastObject] rangeValue];
+
+      selectionRange = closestRange;
+    }
+
+    [windowController openProjectFile:filenameToOpen atLine:[resultObject lineNumber] selectionRange:selectionRange];
     return YES;
   }
 
@@ -264,6 +308,14 @@ NSString* const amContentColumn  = @"amContentColumn";
 
 - (BOOL)tableView:(NSTableView *)tableView shouldTrackCell:(NSCell *)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
+  return NO;
+}
+
+- (BOOL)tableView:(NSTableView*)tableView shouldEditTableColumn:(NSTableColumn*)tableColumn row:(NSInteger)row
+{
+  // if ([tableColumn identifier] == amContentColumn && [tableView isRowSelected:row])
+  //   return YES;
+
   return NO;
 }
 

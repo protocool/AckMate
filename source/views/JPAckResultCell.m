@@ -7,19 +7,19 @@
 #import "SDFoundation.h"
 
 @interface JPAckResultCell ()
+- (void)drawFillWithFrame:(NSRect)cellFrame inView:(NSView*)controlView;
 - (NSRect)drawingRectForBounds:(NSRect)theRect honestly:(BOOL)honestly;
-- (void)drawFillWithFrame:(NSRect)cellFrame inView:(NSView *)controlView;
 @end
 
 @implementation JPAckResultCell
 
-- (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
+- (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView
 {
   [self drawFillWithFrame:cellFrame inView:controlView];
   [super drawInteriorWithFrame:cellFrame inView:controlView];
 }
 
-- (void)drawFillWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
+- (void)drawFillWithFrame:(NSRect)cellFrame inView:(NSView*)controlView
 {
   NSColor* fill = nil;
   NSRect lcrect = [self drawingRectForBounds:cellFrame honestly:YES];
@@ -50,7 +50,7 @@
 
 }
 
-- (NSColor *)highlightColorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
+- (NSColor*)highlightColorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView
 {
   return nil;
 }
@@ -60,9 +60,34 @@
   return NSBackgroundStyleLight;
 }
 
+- (void)selectWithFrame:(NSRect)aRect inView:(NSView*)controlView editor:(NSText*)textObj delegate:(id)anObject start:(int)selStart length:(int)selLength
+{
+  aRect = [self drawingRectForBounds:aRect];
+  expectsFullCellDrawingRect = YES;	
+  [super selectWithFrame:aRect inView:controlView editor:textObj delegate:anObject start:selStart length:selLength];
+  expectsFullCellDrawingRect = NO;
+}
+
+- (void)editWithFrame:(NSRect)aRect inView:(NSView*)controlView editor:(NSText*)textObj delegate:(id)anObject event:(NSEvent*)theEvent
+{
+  aRect = [self drawingRectForBounds:aRect];
+  expectsFullCellDrawingRect = YES;
+  [super editWithFrame:aRect inView:controlView editor:textObj delegate:anObject event:theEvent];
+  expectsFullCellDrawingRect = NO;
+}
+
+- (NSText*)setUpFieldEditorAttributes:(NSText*)textObj
+{ 
+  [textObj setSelectable:NO];
+  [textObj setEditable:NO];
+  [textObj setFocusRingType:NSFocusRingTypeNone];
+  [(NSTextView*)textObj setDrawsBackground:NO];
+  return textObj;
+}
+
 - (NSRect)drawingRectForBounds:(NSRect)theRect
 {
-  return [self drawingRectForBounds:theRect honestly:NO];
+  return [self drawingRectForBounds:theRect honestly:expectsFullCellDrawingRect];
 }
 
 - (NSRect)drawingRectForBounds:(NSRect)theRect honestly:(BOOL)honestly
