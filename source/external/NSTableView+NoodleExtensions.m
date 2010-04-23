@@ -74,15 +74,32 @@ void NoodleClearRect(NSRect rect)
 	}
 }
 
-- (IBAction)scrollToStickyRow:(id)sender
+- (IBAction)peformClickOnStickyRow:(id)sender
 {
 	NSInteger		row;
 	
 	row = [self _previousStickyRow];
 	if (row != -1)
 	{
-		[self scrollRowToVisible:row];
+		[self clickedStickyRow:row];
 	}
+}
+
+- (void)clickedStickyRow:(NSInteger)row
+{
+  [self scrollRowToVisible:row];
+}
+
+- (NSMenu*)contextMenuForStickyRow:(id)sender
+{
+	NSInteger		row;
+	
+	row = [self _previousStickyRow];
+	if (row != -1)
+	{
+    return [[self delegate] tableView:self contextMenuForRow:row];
+	}
+  return nil;
 }
 
 - (id)_stickyRowHeaderView
@@ -93,7 +110,7 @@ void NoodleClearRect(NSRect rect)
 	
 	if (view == nil)
 	{
-		view = [[NSButton alloc] initWithFrame:NSZeroRect];
+		view = [[StickyRowButton alloc] initWithFrame:NSZeroRect];
 		[view setEnabled:YES];
 		[view setBordered:NO];
 		[view setImagePosition:NSImageOnly];
@@ -106,7 +123,7 @@ void NoodleClearRect(NSRect rect)
 		[view setTag:NOODLE_STICKY_ROW_VIEW_TAG];
 		
 		[view setTarget:self];
-		[view setAction:@selector(scrollToStickyRow:)];
+		[view setAction:@selector(peformClickOnStickyRow:)];
 		
 		[self addSubview:view];
 		[view release];
@@ -449,3 +466,9 @@ void NoodleClearRect(NSRect rect)
 
 @end
 
+@implementation StickyRowButton
+- (NSMenu*)menuForEvent:(NSEvent*)event
+{
+  return [[self target] contextMenuForStickyRow:self];
+}
+@end

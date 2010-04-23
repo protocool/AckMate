@@ -53,7 +53,10 @@ enum
  Does an animated scroll to the current sticky row. Clicking on the sticky
  row header will trigger this.
  */
-- (IBAction)scrollToStickyRow:(id)sender;
+- (IBAction)peformClickOnStickyRow:(id)sender;
+
+// subclass overrides for custom handling
+- (void)clickedStickyRow:(NSInteger)row;
 
 /*
  Returns what kind of transition you want when the row becomes sticky. Fade-in 
@@ -103,6 +106,9 @@ enum
 
 @interface NSObject (NoodleStickyRowDelegate)
 
+// So that the sticky header also shows context menus
+- (NSMenu*)tableView:(NSTableView *)tableView contextMenuForRow:(NSInteger)rowIndex;
+
 /*
  Allows the delegate to specify if a row is sticky. By default, group rows
  are sticky. The delegate can override that by implementing this method.
@@ -121,3 +127,6 @@ enum
 
 @end
 
+@interface StickyRowButton : NSButton {
+}
+@end

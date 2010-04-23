@@ -9,6 +9,7 @@
 @interface JPAckResultTableView ()
 - (void)activationAction:(id)sender;
 - (BOOL)activateRow:(NSInteger)row atPoint:(NSPoint)point;
+- (NSInteger)rowTrulyAtPoint:(NSPoint)point;
 @end
 
 @implementation JPAckResultTableView
@@ -21,11 +22,19 @@
 
 - (void)activationAction:(id)sender
 {
-  NSInteger crow = [self clickedRow];
-  NSPoint mouseLocation = [self convertPoint:[[self window] convertScreenToBase:[NSEvent mouseLocation]] fromView:nil];
+  if ([[NSApp currentEvent] modifierFlags] & NSControlKeyMask)
+    return; // never for context menu
 
-  if (crow != -1 && [self isRowSelected:crow] && NSPointInRect(mouseLocation, [self rectOfRow:crow]))
-    [self activateRow:crow atPoint:mouseLocation];
+  NSPoint mouseLocation = [self convertPoint:[[self window] convertScreenToBase:[NSEvent mouseLocation]] fromView:nil];
+  NSInteger row = [self rowTrulyAtPoint:mouseLocation];
+  
+  if (row == NSNotFound)
+    return;
+
+  if ([[self delegate] tableView:self isStickyRow:row])
+    [self clickedStickyRow:row];
+  else if ([self isRowSelected:row])
+    [self activateRow:row atPoint:mouseLocation];
 }
 
 - (BOOL)activateRow:(NSInteger)row atPoint:(NSPoint)point;
@@ -35,6 +44,33 @@
     return [[self delegate] tableView:self activateSelectedRow:row atPoint:point];
   }
   return NO;
+}
+
+- (void)clickedStickyRow:(NSInteger)row
+{
+  [[self delegate] tableView:self activateSelectedRow:row atPoint:NSMakePoint(0,0)]; //dummy point hint - sticky row was clicked, not the real row
+}
+
+- (NSInteger)rowTrulyAtPoint:(NSPoint)point
+{
+  NSInteger mouseRow = [self rowAtPoint:point];
+  if (mouseRow == NSNotFound)
+    return NSNotFound;
+    
+  NSRect rowRect = NSIntersectionRect([self rectOfRow:mouseRow], [self visibleRect]);
+
+  if (NSMouseInRect(point, rowRect, [self isFlipped]))
+    return mouseRow;
+    
+  return NSNotFound;
+}
+
+- (NSMenu*)menuForEvent:(NSEvent*)event
+{
+  NSPoint mousePoint = [self convertPoint:[event locationInWindow] fromView:nil];
+  NSInteger row = [self rowTrulyAtPoint:mousePoint];
+
+  return (row != NSNotFound) ? [[self delegate] tableView:self contextMenuForRow:row] : nil;
 }
 
 - (void)sizeLastColumnToFit
@@ -95,6 +131,18 @@
 
   NSIndexSet* refreshIndexes = [NSIndexSet indexSetWithIndexesInRange:rangeToRefresh];
   [self noteHeightOfRowsWithIndexesChanged:refreshIndexes];
+}
+
+- (CGFloat)viewportOffsetForRow:(NSInteger)rowIndex
+{
+  return [self rectOfRow:rowIndex].origin.y - [self visibleRect].origin.y;
+}
+
+- (void)scrollRowToVisible:(NSInteger)rowIndex withViewportOffset:(CGFloat)offset
+{
+  NSPoint sp = [self rectOfRow:rowIndex].origin;
+  sp.y -= ((offset > 0.0) ? offset : 0);
+  [self scrollPoint:sp];
 }
 
 - (void)viewDidEndLiveResize

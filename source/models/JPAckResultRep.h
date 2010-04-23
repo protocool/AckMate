@@ -5,22 +5,28 @@
 #import "JPAckResult.h"
 
 @interface JPAckResultRep: NSObject {
-  JPAckResult* parentObject;
+  JPAckResultRep* parentObject;
   JPAckResult* resultObject;
-
+  NSMutableArray* childObjects;
+  
   CGFloat constrainedWidth;
   CGFloat calculatedHeight;
   BOOL alternate;
+  BOOL collapsed;
 }
-@property(nonatomic, readonly) JPAckResult* parentObject;
+@property(nonatomic, readonly) JPAckResultRep* parentObject;
 @property(nonatomic, readonly) JPAckResult* resultObject;
 
 @property(nonatomic, assign) CGFloat constrainedWidth;
 @property(nonatomic, assign) CGFloat calculatedHeight;
 @property(nonatomic, readonly) BOOL alternate;
+@property(nonatomic, assign) BOOL collapsed;
 
-+ (id)withResultObject:(JPAckResult*)ro parent:(JPAckResult*)po alternate:(BOOL)alt;
++ (id)withResultObject:(JPAckResult*)ro parent:(JPAckResultRep*)po alternate:(BOOL)alt;
 + (id)withResultObject:(JPAckResult*)ro alternate:(BOOL)alt;
+
+- (NSArray*)children;
+- (void)addChild:(JPAckResultRep*)childObject;
 
 - (JPAckResultType)resultType;
 @end

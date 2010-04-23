@@ -8,7 +8,8 @@
 }
 
 - (NSInteger)spanningColumnForRow:(NSInteger)rowIndex;
-
+- (CGFloat)viewportOffsetForRow:(NSInteger)rowIndex;
+- (void)scrollRowToVisible:(NSInteger)rowIndex withViewportOffset:(CGFloat)offset;
 @end
 
 @interface NSObject (JPAckResultTableViewDelegate)

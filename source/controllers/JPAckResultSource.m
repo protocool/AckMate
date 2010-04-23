@@ -4,12 +4,14 @@
 #import "JPAckWindowController.h"
 #import "JPAckResultSource.h"
 #import "JPAckResultRep.h"
+#import "JPAckResultTableView.h"
 #import "JPAckResultCell.h"
 
 @interface JPAckResultSource ()
 @property(nonatomic, copy) NSString* longestLineNumber;
-@property(nonatomic, retain) NSMutableArray* resultLines;
+@property(nonatomic, retain) NSMutableArray* resultRows;
 @property(nonatomic, copy, readwrite) NSString* resultStats;
+- (void)toggleFileRep:(JPAckResultRep*)rep atIndex:(NSInteger)index;
 - (void)configureFontAttributes;
 - (CGFloat)lineContentWidth;
 - (void)adjustForLongestLineNumber:(NSString*)linenumber;
@@ -23,18 +25,18 @@ NSString* const amContentColumn  = @"amContentColumn";
 @synthesize longestLineNumber;
 @synthesize searchRoot;
 @synthesize resultStats;
-@synthesize resultLines;
+@synthesize resultRows;
 @synthesize matchedFiles;
 @synthesize matchedLines;
 
 - (void)awakeFromNib
 {
-  currentResultFile = nil;
+  currentResultFileRep = nil;
   resultStats = nil;
   searchRoot = nil;
   longestLineNumber = nil;
 
-  self.resultLines = [NSMutableArray array];
+  self.resultRows = [NSMutableArray array];
 
   [resultView setIntercellSpacing:NSMakeSize(0,0)];
 
@@ -51,9 +53,9 @@ NSString* const amContentColumn  = @"amContentColumn";
   alternateRow = NO;
   matchedFiles = 0;
   matchedLines = 0;
-  currentResultFile = nil;
+  currentResultFileRep = nil;
   self.resultStats = nil;
-  [self.resultLines removeAllObjects];
+  [self.resultRows removeAllObjects];
   [resultView reloadData];
 
   // reset column 0 to be 3 chars wide in the current font
@@ -80,7 +82,7 @@ NSString* const amContentColumn  = @"amContentColumn";
 {
   alternateRow = NO;
   JPAckResult* jpar = [JPAckResult resultErrorWithString:errorString];
-  [self.resultLines addObject:[JPAckResultRep withResultObject:jpar alternate:alternateRow]];
+  [self.resultRows addObject:[JPAckResultRep withResultObject:jpar alternate:alternateRow]];
   [resultView noteNumberOfRowsChanged];
 }
 
@@ -90,8 +92,9 @@ NSString* const amContentColumn  = @"amContentColumn";
   matchedFiles++;
   [self updateStats];
 
-  currentResultFile = [JPAckResult resultFileWithName:[filename substringFromIndex:[self.searchRoot length]]];
-  [self.resultLines addObject:[JPAckResultRep withResultObject:currentResultFile alternate:NO]];
+  JPAckResult* fileResult = [JPAckResult resultFileWithName:[filename substringFromIndex:[self.searchRoot length]]];
+  currentResultFileRep = [JPAckResultRep withResultObject:fileResult alternate:NO];
+  [self.resultRows addObject:currentResultFileRep];
   [resultView noteNumberOfRowsChanged];
 }
 
@@ -99,25 +102,33 @@ NSString* const amContentColumn  = @"amContentColumn";
 {
   alternateRow = NO;
   JPAckResult* jpar = [JPAckResult resultContextBreak];
-  [self.resultLines addObject:[JPAckResultRep withResultObject:jpar alternate:NO]];
-  [resultView noteNumberOfRowsChanged];
+  JPAckResultRep* jparrep = [JPAckResultRep withResultObject:jpar parent:currentResultFileRep alternate:NO];
+  if (![currentResultFileRep collapsed])
+  {
+    [self.resultRows addObject:jparrep];
+    [resultView noteNumberOfRowsChanged];
+  }
 }
 
 - (void)parsedContextLine:(NSString*)lineNumber content:(NSString*)content
 {
-  if (currentResultFile)
+  if (currentResultFileRep)
   {
     JPAckResult* jpar = [JPAckResult resultContextLineWithNumber:lineNumber content:content];
-    [self.resultLines addObject:[JPAckResultRep withResultObject:jpar parent:currentResultFile alternate:alternateRow]];
-    alternateRow = !alternateRow;
-    [resultView noteNumberOfRowsChanged];
+    JPAckResultRep* jparrep = [JPAckResultRep withResultObject:jpar parent:currentResultFileRep alternate:alternateRow];
+    if (![currentResultFileRep collapsed])
+    {
+      [self.resultRows addObject:jparrep];
+      [resultView noteNumberOfRowsChanged];
+    }
     [self adjustForLongestLineNumber:lineNumber];
+    alternateRow = !alternateRow;
   }
 }
 
 - (void)parsedMatchLine:(NSString*)lineNumber ranges:(NSArray*)ranges content:(NSString*)content
 {
-  if (currentResultFile)
+  if (currentResultFileRep)
   {
     NSMutableArray* matchRanges = (ranges) ? [NSMutableArray arrayWithCapacity:[ranges count]] : nil;
     matchedLines++;
@@ -126,10 +137,14 @@ NSString* const amContentColumn  = @"amContentColumn";
       [matchRanges addObject:[NSValue valueWithRange:NSRangeFromString(rangeString)]];
 
     JPAckResult* jpar = [JPAckResult resultMatchingLineWithNumber:lineNumber content:content ranges:matchRanges];
-    [self.resultLines addObject:[JPAckResultRep withResultObject:jpar parent:currentResultFile alternate:alternateRow]];
-    alternateRow = !alternateRow;
-    [resultView noteNumberOfRowsChanged];
+    JPAckResultRep* jparrep = [JPAckResultRep withResultObject:jpar parent:currentResultFileRep alternate:alternateRow];
+    if (![currentResultFileRep collapsed])
+    {
+      [self.resultRows addObject:jparrep];
+      [resultView noteNumberOfRowsChanged];
+    }
     [self adjustForLongestLineNumber:lineNumber];
+    alternateRow = !alternateRow;
   }
 }
 
@@ -155,7 +170,7 @@ NSString* const amContentColumn  = @"amContentColumn";
 
 - (NSInteger)tableView:(NSTableView *)tableView spanningColumnForRow:(NSInteger)row
 {
-  JPAckResultType rt = [[self.resultLines objectAtIndex:row] resultType];
+  JPAckResultType rt = [[self.resultRows objectAtIndex:row] resultType];
   if (rt == JPResultTypeFilename || rt == JPResultTypeError)
     return 1;
 
@@ -164,7 +179,7 @@ NSString* const amContentColumn  = @"amContentColumn";
 
 - (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row
 {
-  JPAckResultRep* resultRep = [self.resultLines objectAtIndex:row];
+  JPAckResultRep* resultRep = [self.resultRows objectAtIndex:row];
 
   switch([resultRep resultType])
   {
@@ -190,23 +205,28 @@ NSString* const amContentColumn  = @"amContentColumn";
   return NO;
 }
 
-- (BOOL)tableView:(NSTableView *)tableView activateSelectedRow:(NSInteger)row atPoint:(NSPoint)point
+- (BOOL)tableView:(NSTableView *)tableView activateSelectedRow:(NSInteger)row atPoint:(NSPoint)pointHint
 {
-  JPAckResultRep* rep = [self.resultLines objectAtIndex:row];
+  JPAckResultRep* rep = [self.resultRows objectAtIndex:row];
   JPAckResult* resultObject = [rep resultObject];
 
-  if (resultObject.resultType == JPResultTypeContext || resultObject.resultType == JPResultTypeMatchingLine)
+  if (resultObject.resultType == JPResultTypeFilename)
   {
-    NSString* filenameToOpen = [[rep parentObject] lineContent];
+    [self toggleFileRep:rep atIndex:row];
+    return YES;
+  }
+  else if (resultObject.resultType == JPResultTypeContext || resultObject.resultType == JPResultTypeMatchingLine)
+  {
+    NSString* filenameToOpen = [[[rep parentObject] resultObject] lineContent];
     NSRange selectionRange = NSMakeRange(0,0);
     
     // I feel like such a bandit... oh well.
-    if (NSPointInRect(point, [tableView frameOfCellAtColumn:1 row:row]) && [resultObject matchRanges])
+    if (NSPointInRect(pointHint, [tableView frameOfCellAtColumn:1 row:row]) && [resultObject matchRanges])
     {
       // Quickly load up the field editor so we can find out where the click was
       [tableView editColumn:1 row:row withEvent:nil select:NO];
       NSTextView* tv = (NSTextView*)[tableView currentEditor];
-      NSPoint adjustedPoint = [tv convertPoint:point fromView:tableView];
+      NSPoint adjustedPoint = [tv convertPoint:pointHint fromView:tableView];
       NSUInteger clickIndex = [tv characterIndexForInsertionAtPoint:adjustedPoint];
       
       NSRange closestRange = NSMakeRange(NSNotFound, 0);
@@ -251,18 +271,18 @@ NSString* const amContentColumn  = @"amContentColumn";
 
 - (BOOL)tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)row
 {
-  JPAckResultType itemtype = [[self.resultLines objectAtIndex:row] resultType];
-  return (itemtype == JPResultTypeMatchingLine || itemtype == JPResultTypeContext);
+  JPAckResultType itemtype = [[self.resultRows objectAtIndex:row] resultType];
+  return ((itemtype == JPResultTypeMatchingLine || itemtype == JPResultTypeContext) && !([[NSApp currentEvent] modifierFlags] & NSControlKeyMask));
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {
-  return [self.resultLines count];
+  return [self.resultRows count];
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-  JPAckResultRep* rep = [self.resultLines objectAtIndex:row];
+  JPAckResultRep* rep = [self.resultRows objectAtIndex:row];
   JPAckResultType resultType = [rep resultType];
   id value = nil;
   
@@ -297,13 +317,13 @@ NSString* const amContentColumn  = @"amContentColumn";
 
 - (BOOL)tableView:(NSTableView *)tableView isStickyRow:(NSInteger)row
 {
-  return ([[self.resultLines objectAtIndex:row] resultType] == JPResultTypeFilename);
+  return ([[self.resultRows objectAtIndex:row] resultType] == JPResultTypeFilename);
 }
 
 - (void)tableView:(NSTableView *)tableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)row
 {
-  JPAckResultRep* rep = [self.resultLines objectAtIndex:row];
-  [(JPAckResultCell*)aCell configureType:[rep resultType] alternate:[rep alternate] contentColumn:([aTableColumn identifier] != amLineNumberColumn)];
+  JPAckResultRep* rep = [self.resultRows objectAtIndex:row];
+  [(JPAckResultCell*)aCell configureType:[rep resultType] alternate:[rep alternate] collapsed:[rep collapsed] contentColumn:([aTableColumn identifier] != amLineNumberColumn)];
 }
 
 - (BOOL)tableView:(NSTableView *)tableView shouldTrackCell:(NSCell *)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
@@ -317,6 +337,130 @@ NSString* const amContentColumn  = @"amContentColumn";
   //   return YES;
 
   return NO;
+}
+
+- (NSMenu*)tableView:(NSTableView *)tableView contextMenuForRow:(NSInteger)row;
+{
+  JPAckResultRep* clickRep = [self.resultRows objectAtIndex:row];
+  JPAckResultRep* fileRep = [clickRep parentObject] ? [clickRep parentObject] : clickRep;
+
+  if ([fileRep resultType] != JPResultTypeFilename)
+    return nil;
+
+  NSMenu* mfe = [[[NSMenu alloc] initWithTitle:@""] autorelease];
+  NSString* fileName = [[[fileRep resultObject] lineContent] lastPathComponent];
+  NSString* title = [NSString stringWithFormat:@"%@ %@", ([fileRep collapsed]) ? @"Expand" : @"Collapse", fileName];
+  NSMenuItem *toggleThis = [[[NSMenuItem alloc] initWithTitle:title action:@selector(toggleCollapsingItem:) keyEquivalent:@""] autorelease];
+  [toggleThis setTarget:self];
+  [toggleThis setRepresentedObject:fileRep];
+  [mfe addItem:toggleThis];
+  [mfe addItem:[NSMenuItem separatorItem]];
+
+  NSMenuItem *expandAll = [[[NSMenuItem alloc] initWithTitle:@"Expand All" action:@selector(expandAll:) keyEquivalent:@""] autorelease];
+  [expandAll setTarget:self];
+  [expandAll setRepresentedObject:fileRep];
+  [mfe addItem:expandAll];
+  NSMenuItem *collapseAll = [[[NSMenuItem alloc] initWithTitle:@"Collapse All" action:@selector(collapseAll:) keyEquivalent:@""] autorelease];
+  [collapseAll setTarget:self];
+  [collapseAll setRepresentedObject:fileRep];
+  [mfe addItem:collapseAll];
+  
+  return mfe;
+}
+
+- (void)toggleCollapsingItem:(id)sender
+{
+  JPAckResultRep* rep = [sender representedObject];
+  NSUInteger repindex = [self.resultRows indexOfObject:rep];
+  if (repindex == NSNotFound)
+    return;
+  [self toggleFileRep:rep atIndex:repindex];
+}
+
+- (void)toggleFileRep:(JPAckResultRep*)rep atIndex:(NSInteger)index
+{
+  NSInteger selRow = [resultView selectedRow];
+  NSIndexSet* effectiveSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(index + 1, [[rep children] count])];
+  
+  if ([rep collapsed])
+    [self.resultRows insertObjects:[rep children] atIndexes:effectiveSet];
+  else
+    [self.resultRows removeObjectsAtIndexes:effectiveSet];
+
+  [resultView noteNumberOfRowsChanged];
+
+  if (![rep collapsed]) // as in, not marked as collapsed yet - so we *removed* rows
+  {
+    if (selRow != -1 && selRow > [effectiveSet lastIndex])
+      [resultView selectRowIndexes:[NSIndexSet indexSetWithIndex:(selRow - [[rep children] count])] byExtendingSelection:NO];
+    else if (selRow != -1 && [effectiveSet containsIndex:selRow])
+      [resultView deselectAll:self];
+  }
+  else if (selRow != -1 && selRow > index) // we expanded, do we need to shuffle selection along?
+    [resultView selectRowIndexes:[NSIndexSet indexSetWithIndex:(selRow + [[rep children] count])] byExtendingSelection:NO];
+
+  [rep setCollapsed:![rep collapsed]]; // *now* it's okay to flip the state
+  [resultView scrollRowToVisible:index];
+}
+
+- (void)collapseAll:(id)sender
+{
+  NSUInteger contextRow = [self.resultRows indexOfObject:[sender representedObject]];
+  CGFloat contextOffset = 0.0;
+  if (contextRow != NSNotFound)
+    contextOffset = [resultView viewportOffsetForRow:contextRow];
+  
+  NSMutableArray* collapsedResults = [NSMutableArray array];
+  for (JPAckResultRep* rep in self.resultRows)
+  {
+    if (![rep parentObject]) {
+      [collapsedResults addObject:rep];
+      [rep setCollapsed:YES];
+    }
+  }
+  [resultView deselectAll:self];
+  self.resultRows = collapsedResults;
+  [resultView noteNumberOfRowsChanged];
+
+  contextRow = [self.resultRows indexOfObject:[sender representedObject]];
+  if (contextRow != NSNotFound)
+    [resultView scrollRowToVisible:contextRow withViewportOffset:contextOffset];
+}
+
+- (void)expandAll:(id)sender
+{
+  NSUInteger contextRow = [self.resultRows indexOfObject:[sender representedObject]];
+  CGFloat contextOffset = 0.0;
+  if (contextRow != NSNotFound)
+    contextOffset = [resultView viewportOffsetForRow:contextRow];
+
+  JPAckResultRep* selectedRep = nil;
+  NSInteger selRow = [resultView selectedRow];
+  if (selRow != -1)
+    selectedRep = [self.resultRows objectAtIndex:selRow];
+
+  NSMutableArray* expandedResults = [NSMutableArray array];
+  for (JPAckResultRep* rep in self.resultRows)
+  {
+    [expandedResults addObject:rep];
+    if (![rep parentObject] && [rep collapsed]) {
+      [rep setCollapsed:NO];
+      [expandedResults addObjectsFromArray:[rep children]];
+    }
+  }
+  self.resultRows = expandedResults;
+  [resultView noteNumberOfRowsChanged];
+
+  if (selectedRep) // restore previous selection
+  {
+    NSUInteger newIndex = [self.resultRows indexOfObject:selectedRep];
+    if (newIndex != NSNotFound)
+      [resultView selectRowIndexes:[NSIndexSet indexSetWithIndex:newIndex] byExtendingSelection:NO];
+  }
+
+  contextRow = [self.resultRows indexOfObject:[sender representedObject]];
+  if (contextRow != NSNotFound)
+    [resultView scrollRowToVisible:contextRow withViewportOffset:contextOffset];
 }
 
 - (void)configureFontAttributes
@@ -384,7 +528,7 @@ NSString* const amContentColumn  = @"amContentColumn";
 {
   [searchRoot release], searchRoot = nil;
   [resultStats release], resultStats = nil;
-  [resultLines release], resultLines = nil;
+  [resultRows release], resultRows = nil;
   [longestLineNumber release], longestLineNumber = nil;
 
   [headingAttributes release], headingAttributes = nil;

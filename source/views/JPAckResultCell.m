@@ -5,6 +5,7 @@
 #import "JPAckResultTableView.h"
 #import "JPAckResultRep.h"
 #import "SDFoundation.h"
+#import "NSImage-NoodleExtensions.h"
 
 @interface JPAckResultCell ()
 - (void)drawFillWithFrame:(NSRect)cellFrame inView:(NSView*)controlView;
@@ -48,6 +49,14 @@
     NSRectFill(lcrect);
   }
 
+  // After the fill has been drawn, blat the disclosure triangle on there
+  if (contentColumn && resultType == JPResultTypeFilename)
+  {
+    NSPoint imageOrigin = lcrect.origin;
+    imageOrigin.x += RESULT_CONTENT_INTERIOR_PADDING;
+    imageOrigin.y += ceil((lcrect.size.height - DISCLOSURE_TRIANGLE_DIMENSION) / 2);
+    [[NSImage imageNamed:(collapsed) ? @"ackmateExpand" : @"ackmateCollapse"] drawAdjustedAtPoint:imageOrigin fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+  }
 }
 
 - (NSColor*)highlightColorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView
@@ -97,17 +106,21 @@
   if (honestly) return drect;
 
   if(resultType == JPResultTypeFilename)
+  {
+    SDDivideRect(drect, nil, &drect, DISCLOSURE_TRIANGLE_DIMENSION, NSMinXEdge);
     SDDivideRect(drect, nil, &drect, RESULT_ROW_PADDING, NSMinYEdge);
+  }
 
   return NSInsetRect(drect, RESULT_CONTENT_INTERIOR_PADDING, RESULT_TEXT_YINSET);
 }
 
 
--(void)configureType:(JPAckResultType)resultType_ alternate:(BOOL)alternate_ contentColumn:(BOOL)contentColumn_
+-(void)configureType:(JPAckResultType)resultType_ alternate:(BOOL)alternate_ collapsed:(BOOL)collapsed_ contentColumn:(BOOL)contentColumn_
 {
   resultType = resultType_;
   alternate = alternate_;
   contentColumn = contentColumn_;
+  collapsed = collapsed_;
   
   if (resultType == JPResultTypeMatchingLine || resultType == JPResultTypeFilename || resultType == JPResultTypeError)
     [self setTextColor:[NSColor controlTextColor]];

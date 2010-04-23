@@ -4,6 +4,9 @@
 #import <Cocoa/Cocoa.h>
 #import "JPAckResultRep.h"
 
+// disclosure triangle size
+#define DISCLOSURE_TRIANGLE_DIMENSION 16
+
 // left/right padding for the cell
 #define RESULT_ROW_PADDING 15.0
 
@@ -24,8 +27,9 @@
   JPAckResultType resultType;
   BOOL alternate;
   BOOL contentColumn;
+  BOOL collapsed;
   CGFloat lineNumberWidth;
 }
 
--(void)configureType:(JPAckResultType)resultType_ alternate:(BOOL)alternate_ contentColumn:(BOOL)contentColumn_;
+-(void)configureType:(JPAckResultType)resultType_ alternate:(BOOL)alternate_ collapsed:(BOOL)collapsed_ contentColumn:(BOOL)contentColumn_;
 @end

@@ -3,23 +3,24 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class JPAckResult;
+@class JPAckResultRep;
 @class JPAckWindowController;
+@class JPAckResultTableView;
 
 @interface JPAckResultSource : NSObject {
   NSUInteger matchedFiles;
   NSUInteger matchedLines;
-  NSMutableArray* resultLines;
+  NSMutableArray* resultRows;
 
   NSDictionary* headingAttributes;
   NSDictionary* bodyAttributes;
   NSDictionary* bodyNowrapAttributes;
   NSDictionary* bodyHighlightAttributes;
 
-  IBOutlet NSTableView* resultView;
+  IBOutlet JPAckResultTableView* resultView;
   IBOutlet JPAckWindowController* windowController;
 
-  JPAckResult* currentResultFile;
+  JPAckResultRep* currentResultFileRep;
 
   NSString* resultStats;
   BOOL searchingSelection;

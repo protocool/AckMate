@@ -4,6 +4,12 @@
 
 *This plugin is only compatible with Mac OS X 10.5 and above.*
 
+## Donations
+
+Like many of you, I do this sort of thing to keep my family warm, clothed, and fed. Every hour I spend on AckMate is an hour that I'm not billing for.
+
+If you find AckMate useful, a small [donation](http://pledgie.com/campaigns/9779) is a great way to show your appreciation.
+
 ## Binary Installation
 
 * Download the latest release from the [downloads section](http://github.com/protocool/AckMate/downloads)

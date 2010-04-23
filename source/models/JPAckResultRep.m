@@ -4,7 +4,7 @@
 #import "JPAckResultRep.h"
 
 @interface JPAckResultRep ()
-- (id)initWithResultObject:(JPAckResult*)resultObject_ parent:(JPAckResult*)parentObject_ alternate:(BOOL)alternate_;
+- (id)initWithResultObject:(JPAckResult*)resultObject_ parent:(JPAckResultRep*)parentObject_ alternate:(BOOL)alternate_;
 @end;
 
 @implementation JPAckResultRep
@@ -14,8 +14,9 @@
 @synthesize constrainedWidth;
 @synthesize calculatedHeight;
 @synthesize alternate;
+@synthesize collapsed;
 
-+ (id)withResultObject:(JPAckResult*)ro parent:(JPAckResult*)po alternate:(BOOL)alt
++ (id)withResultObject:(JPAckResult*)ro parent:(JPAckResultRep*)po alternate:(BOOL)alt
 {
   return [[[JPAckResultRep alloc] initWithResultObject:ro parent:po alternate:alt] autorelease];
 }
@@ -25,13 +26,16 @@
   return [[[JPAckResultRep alloc] initWithResultObject:ro parent:nil alternate:alt] autorelease];
 }
 
-- (id)initWithResultObject:(JPAckResult*)resultObject_ parent:(JPAckResult*)parentObject_ alternate:(BOOL)alternate_
+- (id)initWithResultObject:(JPAckResult*)resultObject_ parent:(JPAckResultRep*)parentObject_ alternate:(BOOL)alternate_
 {
   if (self = [super init])
   {
     parentObject = [parentObject_ retain];
     resultObject = [resultObject_ retain];
     alternate = alternate_;
+
+    if (parentObject)
+      [parentObject addChild:self];
   }
   return self;
 }
@@ -46,10 +50,24 @@
   return resultObject.resultType;
 }
 
+- (NSArray*)children
+{
+  return childObjects;
+}
+
+- (void)addChild:(JPAckResultRep*)childObject
+{
+  if (!childObjects)
+    childObjects = [[NSMutableArray alloc] initWithCapacity:1];
+
+  [childObjects addObject:childObject];
+}
+
 - (void)dealloc
 {
   [parentObject release], parentObject = nil;
   [resultObject release], resultObject = nil;
+  [childObjects release], childObjects = nil;
   [super dealloc];
 }
 
