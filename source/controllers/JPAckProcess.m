@@ -178,9 +178,19 @@ enum {
   return tandc;
 }
 
-- (void)terminate
+- (void)terminateImmediately:(BOOL)immediately
 {
   [self.ackTask terminate];
+
+  // If immediately then we must clean up any references
+  // that might be left dangling and don't worry about lost
+  // callbacks - they don't matter any more because we're about
+  // to be completely deallocated
+  if (immediately)
+  {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [ackResult release], ackResult = nil;
+  }
 }
 
 - (void)dealloc

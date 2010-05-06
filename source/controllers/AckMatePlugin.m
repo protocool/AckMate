@@ -97,7 +97,7 @@
     NSString* closingProjectDir = [self directoryForProject:windowController];
     JPAckWindowController* existingAckController = [ackWindows objectForKey:closingProjectDir];
     if (existingAckController)
-      [existingAckController cleanup];
+      [existingAckController cleanupImmediately:YES];
 
     [ackWindows removeObjectForKey:closingProjectDir];
   }

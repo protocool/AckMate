@@ -20,6 +20,6 @@ extern NSString * const JPAckProcessComplete;
 - (void)parseData:(NSData*)data;
 - (void)saveTrailing:(char*)bytes length:(NSUInteger)length;
 
-- (void)terminate;
+- (void)terminateImmediately:(BOOL)immediately;
 
 @end

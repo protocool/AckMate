@@ -148,6 +148,7 @@ enum {
 
 - (void)dealloc
 {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
   [errorData release], errorData = nil;
   [typesData release], typesData = nil;
   [ackTask release], ackTask = nil;

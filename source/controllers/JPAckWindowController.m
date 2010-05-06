@@ -112,20 +112,23 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
     [[self window] setFrameFromString:savedFrame];
 }
 
-- (void)cleanup
+- (void)cleanupImmediately:(BOOL)immediately
 {
   [self notePreferences];
 
   if (self.currentProcess)
-    [self.currentProcess terminate];
+    [self.currentProcess terminateImmediately:immediately];
 
   if (self.currentTypesProcess)
     [self.currentTypesProcess terminate];
+
+  if (immediately)
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (BOOL)windowShouldClose:(id)sender
 {
-  [self cleanup];
+  [self cleanupImmediately:NO];
   return YES;
 }
 
@@ -300,7 +303,7 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
 - (IBAction)cancel:(id)sender
 {
   if ([self running])
-    [self.currentProcess terminate];
+    [self.currentProcess terminateImmediately:NO];
   else
     [[self window] performClose:nil];
 }
@@ -405,6 +408,8 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
 
 - (void)dealloc
 {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+
   [fileName release], fileName = nil;
   [projectDirectory release], projectDirectory = nil;
   [selectedSearchFolder release], selectedSearchFolder = nil;

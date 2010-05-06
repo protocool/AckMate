@@ -62,7 +62,7 @@ extern NSString * const kJPAckWindowPosition;
 - (IBAction)cancel:(id)sender;
 - (BOOL)running;
 - (NSString*)windowTitle;
-- (void)cleanup;
+- (void)cleanupImmediately:(BOOL)immediately;
 @end
 
 @interface NSObject (AckMateCompilerSilencing)
