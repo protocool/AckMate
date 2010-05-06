@@ -6,6 +6,8 @@
 #import "JPAckProcess.h"
 #import "JPAckTypesProcess.h"
 
+#define ADVANCED_HEIGHT 20.0f
+
 @interface JPAckWindowController ()
 - (void)loadAckTypes;
 - (void)notePreferences;
@@ -23,6 +25,7 @@
 @implementation JPAckWindowController
 
 NSString * const kJPAckLiteral = @"kJPAckLiteral";
+NSString * const kJPAckShowAdvanced = @"kJPAckShowAdvanced";
 NSString * const kJPAckNoCase = @"kJPAckNoCase";
 NSString * const kJPAckMatchWords = @"kJPAckMatchWords";
 NSString * const kJPAckShowContext = @"kJPAckShowContext";
@@ -38,6 +41,7 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
 @synthesize ackTypes;
 @synthesize history;
 @synthesize term;
+@synthesize showAdvanced;
 @synthesize nocase;
 @synthesize literal;
 @synthesize words;
@@ -71,6 +75,9 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
 {
   if (self = [self initWithWindowNibName:@"JPAckWindow"])
   {
+    // initial state of showAdvanced is always YES based on the nib layout
+    showAdvanced = YES;
+
     history = nil;
     ackTypes = nil;
     term = nil;
@@ -94,6 +101,7 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
   [optionsField setTokenizingCharacterSet:[NSCharacterSet whitespaceCharacterSet]];
 
   self.literal = [[preferences objectForKey:kJPAckLiteral] boolValue];
+  self.showAdvanced = [[preferences objectForKey:kJPAckShowAdvanced] boolValue];
   self.nocase = [[preferences objectForKey:kJPAckNoCase] boolValue];
   self.words = [[preferences objectForKey:kJPAckMatchWords] boolValue];
   self.context = [[preferences objectForKey:kJPAckShowContext] boolValue];
@@ -135,6 +143,7 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
 - (void)notePreferences
 {
   [preferences setObject:[NSNumber numberWithBool:self.literal] forKey:kJPAckLiteral];
+  [preferences setObject:[NSNumber numberWithBool:self.showAdvanced] forKey:kJPAckShowAdvanced];
   [preferences setObject:[NSNumber numberWithBool:self.nocase] forKey:kJPAckNoCase];
   [preferences setObject:[NSNumber numberWithBool:self.words] forKey:kJPAckMatchWords];
   [preferences setObject:[NSNumber numberWithBool:self.context] forKey:kJPAckShowContext];
@@ -178,6 +187,47 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
   [self showWindow:nil];
   [self loadAckTypes];
   [[self window] makeFirstResponder:searchTermField];
+}
+
+- (void)setShowAdvanced:(BOOL)showAdvanced_
+{
+  [self willChangeValueForKey:@"showAdvanced"];
+  BOOL changed = (showAdvanced != showAdvanced_);
+  showAdvanced = showAdvanced_;
+
+  if (changed)
+  {
+    [showContextButton setHidden:!showAdvanced];
+    [followSymlinksButton setHidden:!showAdvanced];
+    [useFolderReferencesButton setHidden:!showAdvanced];
+
+    NSRect optionsFrame = [optionsBox frame];
+    NSRect controlFrame = [controlView frame];
+    NSRect resultsFrame = [resultsView frame];
+
+    if (showAdvanced)
+    {
+      optionsFrame.origin.y -= ADVANCED_HEIGHT;
+      optionsFrame.size.height += ADVANCED_HEIGHT;
+      controlFrame.origin.y -= ADVANCED_HEIGHT;
+      controlFrame.size.height += ADVANCED_HEIGHT;
+      resultsFrame.size.height -= ADVANCED_HEIGHT;
+    }
+    else
+    {
+      optionsFrame.origin.y += ADVANCED_HEIGHT;
+      optionsFrame.size.height -= ADVANCED_HEIGHT;
+      controlFrame.origin.y += ADVANCED_HEIGHT;
+      controlFrame.size.height -= ADVANCED_HEIGHT;
+      resultsFrame.size.height += ADVANCED_HEIGHT;
+    }
+
+    [optionsBox setFrame:optionsFrame];
+    [controlView setFrame:controlFrame];
+    [resultsView setFrame:resultsFrame];
+  }
+
+  [self didChangeValueForKey:@"showAdvanced"];
 }
 
 - (IBAction)performSearch:(id)sender

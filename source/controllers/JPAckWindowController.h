@@ -8,6 +8,7 @@
 @class JPAckTypesProcess;
 
 extern NSString * const kJPAckLiteral;
+extern NSString * const kJPAckShowAdvanced;
 extern NSString * const kJPAckNoCase;
 extern NSString * const kJPAckMatchWords;
 extern NSString * const kJPAckShowContext;
@@ -21,6 +22,14 @@ extern NSString * const kJPAckWindowPosition;
   IBOutlet JPAckResultSource* ackResult;
   IBOutlet NSTokenField* optionsField;
   IBOutlet NSComboBox* searchTermField;
+  IBOutlet NSButton* showContextButton;
+  IBOutlet NSButton* followSymlinksButton;
+  IBOutlet NSButton* useFolderReferencesButton;
+  IBOutlet NSButton* advancedDisclosure;
+  IBOutlet NSButton* advancedButton;
+  IBOutlet NSBox* optionsBox;
+  IBOutlet NSView* controlView;
+  IBOutlet NSScrollView* resultsView;
 
   NSInteger pasteboardChangeCount;
   NSString* projectDirectory;
@@ -33,6 +42,7 @@ extern NSString * const kJPAckWindowPosition;
   NSArray* ackTypes;
 
   NSString* term;
+  BOOL showAdvanced;
   BOOL nocase;
   BOOL literal;
   BOOL words;
@@ -47,6 +57,7 @@ extern NSString * const kJPAckWindowPosition;
 @property(nonatomic, readonly, copy) NSString* fileName;
 @property(nonatomic, readonly, copy) NSArray* history;
 @property(nonatomic, copy) NSString* term;
+@property(nonatomic, assign) BOOL showAdvanced;
 @property(nonatomic, assign) BOOL nocase;
 @property(nonatomic, assign) BOOL literal;
 @property(nonatomic, assign) BOOL words;
