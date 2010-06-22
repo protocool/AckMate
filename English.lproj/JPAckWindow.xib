@@ -2,17 +2,17 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.10">
 	<data>
 		<int key="IBDocument.SystemTarget">1050</int>
-		<string key="IBDocument.SystemVersion">10D573</string>
+		<string key="IBDocument.SystemVersion">10F569</string>
 		<string key="IBDocument.InterfaceBuilderVersion">762</string>
 		<string key="IBDocument.AppKitVersion">1038.29</string>
-		<string key="IBDocument.HIToolboxVersion">460.00</string>
+		<string key="IBDocument.HIToolboxVersion">461.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			<string key="NS.object.0">762</string>
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="18"/>
+			<integer value="3"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -46,7 +46,7 @@
 				<string key="NSWindowTitle">AckMate</string>
 				<string key="NSWindowClass">NSWindow</string>
 				<nil key="NSViewClass"/>
-				<string key="NSWindowContentMaxSize">{3.40282e+38, 3.40282e+38}</string>
+				<string key="NSWindowContentMaxSize">{1.79769e+308, 1.79769e+308}</string>
 				<string key="NSWindowContentMinSize">{600, 435}</string>
 				<object class="NSView" key="NSWindowView" id="242639802">
 					<reference key="NSNextResponder"/>
@@ -119,7 +119,7 @@
 															<string key="NSColorName">controlBackgroundColor</string>
 															<object class="NSColor" key="NSColor" id="423901261">
 																<int key="NSColorSpace">3</int>
-																<bytes key="NSWhite">MC42NjY2NjY2ODY1AA</bytes>
+																<bytes key="NSWhite">MC42NjY2NjY2NjY3AA</bytes>
 															</object>
 														</object>
 														<object class="NSColor" key="NSTextColor" id="534163564">
@@ -389,7 +389,7 @@
 														<reference key="NSSupport" ref="26"/>
 														<reference key="NSControlView" ref="791942456"/>
 														<int key="NSButtonFlags">1211912703</int>
-														<int key="NSButtonFlags2">2</int>
+														<int key="NSButtonFlags2">402653186</int>
 														<object class="NSCustomResource" key="NSNormalImage" id="509523722">
 															<string key="NSClassName">NSImage</string>
 															<string key="NSResourceName">NSSwitch</string>
@@ -398,7 +398,7 @@
 															<string key="NSImageName">NSSwitch</string>
 														</object>
 														<string key="NSAlternateContents"/>
-														<string key="NSKeyEquivalent"/>
+														<string key="NSKeyEquivalent">r</string>
 														<int key="NSPeriodicDelay">200</int>
 														<int key="NSPeriodicInterval">25</int>
 													</object>
@@ -416,11 +416,11 @@
 														<reference key="NSSupport" ref="26"/>
 														<reference key="NSControlView" ref="1043189703"/>
 														<int key="NSButtonFlags">1211912703</int>
-														<int key="NSButtonFlags2">2</int>
+														<int key="NSButtonFlags2">402653186</int>
 														<reference key="NSNormalImage" ref="509523722"/>
 														<reference key="NSAlternateImage" ref="394069372"/>
 														<string key="NSAlternateContents"/>
-														<string key="NSKeyEquivalent"/>
+														<string key="NSKeyEquivalent">i</string>
 														<int key="NSPeriodicDelay">200</int>
 														<int key="NSPeriodicInterval">25</int>
 													</object>
@@ -668,7 +668,7 @@
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMinSize">{600, 457}</string>
-				<string key="NSMaxSize">{3.40282e+38, 3.40282e+38}</string>
+				<string key="NSMaxSize">{1.79769e+308, 1.79769e+308}</string>
 				<string key="NSFrameAutosaveName">ackmatePosition</string>
 			</object>
 			<object class="NSCustomObject" id="881110755">
@@ -1886,7 +1886,7 @@
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSTableView</string>
+							<string>JPAckResultTableView</string>
 							<string>JPAckWindowController</string>
 						</object>
 					</object>
@@ -1950,16 +1950,32 @@
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>ackResult</string>
+							<string>advancedButton</string>
+							<string>advancedDisclosure</string>
+							<string>controlView</string>
+							<string>followSymlinksButton</string>
+							<string>optionsBox</string>
 							<string>optionsField</string>
 							<string>projectController</string>
+							<string>resultsView</string>
 							<string>searchTermField</string>
+							<string>showContextButton</string>
+							<string>useFolderReferencesButton</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>JPAckResultSource</string>
+							<string>NSButton</string>
+							<string>NSButton</string>
+							<string>NSView</string>
+							<string>NSButton</string>
+							<string>NSBox</string>
 							<string>NSTokenField</string>
 							<string>id</string>
+							<string>NSScrollView</string>
 							<string>NSComboBox</string>
+							<string>NSButton</string>
+							<string>NSButton</string>
 						</object>
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="722909967">
@@ -1989,73 +2005,10 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">NSTableView</string>
 					<object class="NSMutableDictionary" key="actions">
-						<string key="NS.key.0">scrollToStickyRow:</string>
+						<string key="NS.key.0">peformClickOnStickyRow:</string>
 						<string key="NS.object.0">id</string>
 					</object>
 					<reference key="sourceIdentifier" ref="989839780"/>
-				</object>
-			</object>
-			<object class="NSMutableArray" key="referencedPartialClassDescriptionsV3.1+">
-				<bool key="EncodedWithXMLCoder">YES</bool>
-				<object class="IBPartialClassDescription">
-					<string key="className">JPAckWindowController</string>
-					<string key="superclassName">NSWindowController</string>
-					<object class="NSMutableDictionary" key="actions">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>cancel:</string>
-							<string>cleanseOptionsField:</string>
-							<string>performSearch:</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-						</object>
-					</object>
-					<object class="NSMutableDictionary" key="outlets">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>ackResult</string>
-							<string>advancedButton</string>
-							<string>advancedDisclosure</string>
-							<string>controlView</string>
-							<string>followSymlinksButton</string>
-							<string>optionsBox</string>
-							<string>optionsField</string>
-							<string>projectController</string>
-							<string>resultsView</string>
-							<string>searchTermField</string>
-							<string>showContextButton</string>
-							<string>useFolderReferencesButton</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>JPAckResultSource</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSView</string>
-							<string>NSButton</string>
-							<string>NSBox</string>
-							<string>NSTokenField</string>
-							<string>id</string>
-							<string>NSScrollView</string>
-							<string>NSComboBox</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-						</object>
-					</object>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="676026671">
-						<string key="majorKey">IBDocumentRelativeSource</string>
-						<string key="minorKey">../source/controllers/JPAckWindowController.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">NSObject</string>
-					<reference key="sourceIdentifier" ref="676026671"/>
 				</object>
 			</object>
 			<object class="NSMutableArray" key="referencedPartialClassDescriptionsV3.2+">
