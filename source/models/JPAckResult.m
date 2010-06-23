@@ -20,7 +20,7 @@
 
 + (id)resultFileWithName:(NSString*)fileName_
 {
-  NSString* fileName = ([fileName_ hasPrefix:@"/"]) ? [[fileName_ substringFromIndex:1] copy] : [fileName_ copy]; // blech
+  NSString* fileName = ([fileName_ hasPrefix:@"/"]) ? [fileName_ substringFromIndex:1] : fileName_; // blech
   return [[[JPAckResult alloc] initWithType:JPResultTypeFilename lineNumber:nil content:fileName ranges:nil ] autorelease];
 }
 

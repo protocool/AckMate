@@ -23,15 +23,6 @@
     ackWindows = [[NSMutableDictionary alloc] initWithCapacity:0];
     [self installMenuItems];
     [self loadPluginPreferences];
-
-    // Load up our bundle images
-    NSBundle* pluginBundle = [NSBundle bundleForClass:[self class]];
-    NSString* collapseImagePath = [pluginBundle pathForResource:@"ackmateCollapse" ofType:@"pdf"];
-    NSImage* collapseImage = [[NSImage alloc] initWithContentsOfFile:collapseImagePath];
-    [collapseImage setName:@"ackmateCollapse"];
-    NSString* expandImagePath = [pluginBundle pathForResource:@"ackmateExpand" ofType:@"pdf"];
-    NSImage* expandImage = [[NSImage alloc] initWithContentsOfFile:expandImagePath];
-    [expandImage setName:@"ackmateExpand"];
   }
   return self;
 }

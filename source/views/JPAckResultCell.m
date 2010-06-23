@@ -14,6 +14,20 @@
 
 @implementation JPAckResultCell
 
+static NSImage* sectionExpanded = nil;
+static NSImage* sectionCollapsed = nil;
+
++ (void)initialize
+{
+  // Load up our bundle images
+  NSBundle* pluginBundle = [NSBundle bundleForClass:self];
+
+  NSString* expandedImagePath = [pluginBundle pathForResource:@"ackmateExpanded" ofType:@"pdf"];
+  sectionExpanded = [[NSImage alloc] initWithContentsOfFile:expandedImagePath];
+  NSString* collapsedImagePath = [pluginBundle pathForResource:@"ackmateCollapsed" ofType:@"pdf"];
+  sectionCollapsed = [[NSImage alloc] initWithContentsOfFile:collapsedImagePath];
+}
+
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView
 {
   [self drawFillWithFrame:cellFrame inView:controlView];
@@ -55,7 +69,8 @@
     NSPoint imageOrigin = lcrect.origin;
     imageOrigin.x += RESULT_CONTENT_INTERIOR_PADDING;
     imageOrigin.y += ceil((lcrect.size.height - DISCLOSURE_TRIANGLE_DIMENSION) / 2);
-    [[NSImage imageNamed:(collapsed) ? @"ackmateExpand" : @"ackmateCollapse"] drawAdjustedAtPoint:imageOrigin fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+    NSImage* drawImage = (collapsed) ? sectionCollapsed : sectionExpanded;
+    [drawImage drawAdjustedAtPoint:imageOrigin fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
   }
 }
 
