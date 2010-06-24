@@ -57,7 +57,7 @@ enum {
   [self.ackTask setCurrentDirectoryPath:path];
 
   [self.ackTask setLaunchPath:@"/usr/bin/env"];
-  NSMutableArray* args = [NSMutableArray arrayWithObjects:@"perl", ackmateAck, @"--ackmate", nil];
+  NSMutableArray* args = [NSMutableArray arrayWithObjects:@"perl", @"-CADS", ackmateAck, @"--ackmate", nil];
 
   if (literal) [args addObject:@"--literal"];
   if (words) [args addObject:@"--word-regexp"];
