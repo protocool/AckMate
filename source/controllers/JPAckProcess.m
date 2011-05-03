@@ -44,7 +44,7 @@ enum {
   return self;
 }
 
-- (void)invokeWithTerm:(NSString*)term path:(NSString*)path searchFolder:(NSString*)searchFolder literal:(BOOL)literal nocase:(BOOL)nocase words:(BOOL)words context:(BOOL)context symlinks:(BOOL)symlinks folderPattern:(NSString*)folderPattern options:(NSArray*)options
+- (void)invokeWithTerm:(NSString*)term path:(NSString*)path searchFolder:(NSString*)searchFolder literal:(BOOL)literal nocase:(BOOL)nocase words:(BOOL)words context:(BOOL)context symlinks:(BOOL)symlinks folderPattern:(NSString*)folderPattern filePattern:(NSString*)filePattern options:(NSArray*)options
 {
   ackState = ackInitial;
   [self.ackResult clearContents];
@@ -77,6 +77,12 @@ enum {
   {
     [args addObject:@"--ackmate-dir-filter"];
     [args addObject:folderPattern];
+  }
+
+  if (filePattern)
+  {
+    [args addObject:@"-G"];
+    [args addObject:filePattern];
   }
 
   for (NSString* typeOption in options)

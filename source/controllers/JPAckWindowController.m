@@ -243,8 +243,10 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
   [ackResult clearContents];
 
   NSString* folderPattern = nil;
+  NSString* filePattern = nil;
   if (folders)
     folderPattern = [[[NSUserDefaults standardUserDefaults] stringForKey:@"OakFolderReferenceFolderPattern"] substringFromIndex:1];
+    filePattern = [[[NSUserDefaults standardUserDefaults] stringForKey:@"OakFolderReferenceFilePattern"] substringFromIndex:1];
 
   self.currentProcess = [[[JPAckProcess alloc] initWithResultHolder:ackResult] autorelease];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(currentProcessCompleted:) name:JPAckProcessComplete object:self.currentProcess];
@@ -258,6 +260,7 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
       context:context
       symlinks:symlinks
       folderPattern:folderPattern
+      filePattern:filePattern
       options:[optionsField objectValue]];
 }
 
