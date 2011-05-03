@@ -81,6 +81,7 @@ enum {
 
   if (filePattern)
   {
+    [args addObject:@"--invert-file-match"];
     [args addObject:@"-G"];
     [args addObject:filePattern];
   }
