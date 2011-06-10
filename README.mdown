@@ -1,6 +1,6 @@
 ## Modifications
 
-**This is is a modified version of [AckMate](https://github.com/protocool/AckMate) ** Once/if [protocool](https://github.com/protocool) pulls these changes, I recommend switching back to his git repo. That said, some of my changes violate his rule about not changing ack; if they never make the cut, you'll still be able to find a copy here.
+This is is a **modified version** of [AckMate](https://github.com/protocool/AckMate) Once/if [protocool](https://github.com/protocool) pulls these changes, I recommend switching back to his git repo. That said, some of my changes violate his rule about not changing ack; if they never make the cut, you'll still be able to find a copy here.
 
 Changes include:
 - Added standard TextMate folder references via ack -G
