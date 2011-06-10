@@ -1636,6 +1636,13 @@ sub filetypes {
         App::Ack::warn( "$filename: $!" );
         return;
     }
+    
+    local $SIG{__WARN__} = sub {
+        my $e = shift;
+        App::Ack::warn( "\n$filename\nYou probably want to either convert this file to utf-8, ignore it in ~/.ackrc, or delete it.\n" );
+        return;
+    };
+
     my $header = <$fh>;
     close $fh;
 
@@ -2760,6 +2767,12 @@ sub needs_line_scan {
         return 1;
     }
     return 0 unless $rc && ( $rc == $size || length(Encode::encode_utf8($buffer)) == $size );
+
+    local $SIG{__WARN__} = sub {
+        my $e = shift;
+        App::Ack::warn( "\n$self->{filename}\nYou probably want to either convert this file to utf-8, ignore it in ~/.ackrc, or delete it.\n" );
+        return;
+    };
 
     my $regex = $opt->{regex};
     return $buffer =~ /$regex/m;
