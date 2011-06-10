@@ -35,4 +35,4 @@ Installing Ragel is easiest with [Homebrew](http://mxcl.github.com/homebrew/)
 
 I'm all ears... send pull requests if you have them.
 
-If you find AckMate useful, donate to [protcool](http://pledgie.com/campaigns/9779) (the original author) or [me](https://flattr.com/donation/give/to/jswartwood) (if you have just been dying for these change :)
+If you find AckMate useful, donate to [protcool](http://pledgie.com/campaigns/9779) (the original author)
