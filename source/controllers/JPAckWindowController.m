@@ -124,6 +124,8 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
 {
   [self notePreferences];
 
+  [optionsField setDelegate:nil];
+
   if (self.currentProcess)
     [self.currentProcess terminateImmediately:immediately];
 
