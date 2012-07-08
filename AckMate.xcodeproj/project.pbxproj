@@ -332,7 +332,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "mkdir -p \"$HOME/Library/Application Support/TextMate/PlugIns\"\ncp -pR \"${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\" \"$HOME/Library/Application Support/TextMate/PlugIns\"";
+			shellScript = "mkdir -p \"$HOME/Library/Application Support/TextMate/PlugIns\"\n# adapted from: http://developer.apple.com/mac/library/qa/qa2006/qa1500.html\n# Depending on the build configuration, either copy or link to the most recent product\nrm -rf \"$HOME/Library/Application Support/TextMate/PlugIns/${FULL_PRODUCT_NAME}\"\nif [ \"${CONFIGURATION}\" == \"Debug\" ]; then\n  # if we're debugging, add a symbolic link to the plug-in\n  ln -sf \"${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\" \\\n    \"$HOME/Library/Application Support/TextMate/PlugIns/${FULL_PRODUCT_NAME}\"\nelif [ \"${CONFIGURATION}\" == \"Release\" ]; then\n  # if we're compiling for release, just copy the plugin to the Internet Plug-ins folder\n  cp -pR \"${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\" \"$HOME/Library/Application Support/TextMate/PlugIns\"\nfi";
 		};
 /* End PBXShellScriptBuildPhase section */
 

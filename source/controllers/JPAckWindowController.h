@@ -36,6 +36,7 @@ extern NSString * const kJPAckWindowPosition;
   NSString* selectedSearchFolder;
   BOOL      selectionSearch;
   NSString* fileName;
+  NSTask*   mateTask;
 
   NSMutableDictionary* preferences;
   NSArray* history;

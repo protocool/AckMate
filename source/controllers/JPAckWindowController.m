@@ -20,6 +20,7 @@
 @property(nonatomic, retain) NSArray* ackTypes;
 @property(nonatomic, readwrite, copy) NSArray* history;
 @property(nonatomic, copy) NSString* selectedSearchFolder;
+@property(retain) NSTask* mateTask;
 @end
 
 @implementation JPAckWindowController
@@ -50,6 +51,7 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
 @synthesize folders;
 @synthesize currentProcess;
 @synthesize currentTypesProcess;
+@synthesize mateTask;
 
 + (NSSet*)keyPathsForValuesAffectingRunning
 {
@@ -87,6 +89,8 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
     projectController = controller;
     preferences = prefs;
     pasteboardChangeCount = NSNotFound;
+
+    mateTask = nil;
 
     NSString* projectfile = [projectController filename] ? [projectController filename] : directory;
     fileName = [[[projectfile lastPathComponent] stringByDeletingPathExtension] copy];
@@ -329,27 +333,17 @@ NSString * const kJPAckWindowPosition = @"kJPAckWindowPosition";
 - (void)openProjectFile:(NSString*)file atLine:(NSString*)line selectionRange:(NSRange)selectionRange
 {
   NSString* absolute = [projectDirectory stringByAppendingPathComponent:file];
-  [[[NSApplication sharedApplication] delegate] openFiles:[NSArray arrayWithObject:absolute]];
 
-  for (NSWindow *w in [[NSApplication sharedApplication] orderedWindows])
-  {
-    id wc = [w windowController];
-    NSString* openFileName = nil;
+  self.mateTask = [[[NSTask alloc] init] autorelease];
+  [self.mateTask setCurrentDirectoryPath:projectDirectory];
+  [self.mateTask setLaunchPath:@"/usr/bin/env"];
 
-    if ([[wc className] isEqualToString:@"OakProjectController"] || [[wc className] isEqualToString:@"OakDocumentController"])
-      openFileName = [[[wc textView] document] filename];
+  NSMutableArray* args = [NSMutableArray arrayWithObjects:@"mate", absolute, nil];
+  [args addObject:@"-l"];
+  [args addObject:line];
 
-    if ([openFileName isEqualToString:absolute])
-    {
-      [[wc textView] goToLineNumber:line];
-      [[wc textView] goToColumnNumber:[NSNumber numberWithInt:selectionRange.location + 1]];
-
-      if (selectionRange.length > 0)
-        [[wc textView] selectToLine:line andColumn:[NSNumber numberWithInt:selectionRange.location + selectionRange.length + 1]];
-
-      break;
-    }
-  }
+  [self.mateTask setArguments:args];	
+  [self.mateTask launch];	
 }
 
 - (IBAction)cancel:(id)sender
